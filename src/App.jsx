@@ -4,7 +4,7 @@ import './App.css'
 const App = () => {
   const [team, setTeam] = useState([]);
   const [money, setMoney] = useState(100);
-  const [zombieFighters, addZombieFighters] = useState(
+  const [zombieFighters, updateZombieFighters] = useState(
     [
       {
         id: 1,
@@ -89,17 +89,32 @@ const App = () => {
     ]    
   )
 
+  const handleAddFighter = ({ zomfighter }) => {
+    const addTeam = setTeam([...team, zomfighter]);
+    const newZombieFighters = ([...zombieFighters.remove(zomfighter)])
+    updateZombieFighters(newZombieFighters)
+  }
+
   return (
     <>
     <h2>Current Funds: {money}</h2>
-    
+
+    <h2>Current Team:</h2>
+    <ul>
+      {team.map((team) => (
+        <div key={team.id}>
+          <img src={team.img}></img>
+          <li>Class: {team.name}<br/> Price: {team.price}<br/>Strength: {team.strength}<br/>Agility: {team.agility}</li>
+        </div>
+      ))}
+    </ul>
     <h2>List of Zombie Fighters:</h2>
     <ul>
       {zombieFighters.map((zomfighter) => (
         <div key={zomfighter.id}>
           <img src={zomfighter.img}></img>
           <li>Class: {zomfighter.name}<br/> Price: {zomfighter.price}<br/>Strength: {zomfighter.strength}<br/>Agility: {zomfighter.agility}</li>
-          <button>Add to Team</button>
+          <button onClick={() => handleAddFighter({ zomfighter })}>Add to Team</button>
         </div>
       ))}
     </ul>
