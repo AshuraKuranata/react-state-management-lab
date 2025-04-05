@@ -2,6 +2,8 @@ import { useState } from 'react'
 import './App.css'
 
 const App = () => {
+  let totalStrength = 0;
+  let totalAgility = 0
   const [team, setTeam] = useState([]);
   const [money, setMoney] = useState(100);
   const [zombieFighters, updateZombieFighters] = useState(
@@ -89,22 +91,59 @@ const App = () => {
     ]    
   )
 
+  // Function for button to Add Fighter to Team and Remove from Zombie Fighter Index
   const handleAddFighter = ({ zomfighter }) => {
-    const addTeam = setTeam([...team, zomfighter]);
-    const newZombieFighters = ([...zombieFighters.remove(zomfighter)])
-    updateZombieFighters(newZombieFighters)
+    if (money > zomfighter.price) { // If statement logic to allow adding in a fighter
+      setMoney(money - zomfighter.price)
+      const addTeam = setTeam([...team, zomfighter])
+      const targetZomFighter = zomfighter.id;
+      updateZombieFighters([...zombieFighters.filter(zomfighter => zomfighter.id !== targetZomFighter)]); // filter passes all the objects that are in the zomfighter array with the rule to keep all BUT the one where the ID matches the targetZomFighter defined above
+    } else { // Prevent 'purchase' of fighter due to lack of funds 
+      console.log("Not enough money");
+      return;
+    }    
   }
+
+  // Function for button to Remove Team Member from Team and Add to Zombie Fighter Index
+  const handleRemoveFighter = ({ teamMember }) => {
+    setMoney(money + teamMember.price)
+    updateZombieFighters([...zombieFighters, teamMember])
+    const targetZomFighter = teamMember.id;
+    const removeTeam = setTeam([...team.filter(teamMember => teamMember.id !== targetZomFighter)])
+  }
+
+
+  /* Two ways built to calculate total stats of team */
+
+  // Iteration over each member's specific object to add together
+  // team.forEach((member) => {
+  //   totalStrength = totalStrength + member.strength;
+  //   totalAgility = totalAgility + member.agility
+  // })
+
+  // Utilization of reduce() function: loops through an array and provides an accumulation of a value based on what it's looping through:
+  // Syntax:
+  // 
+  // Array.reduce(("Accumulator", Current Value) => {
+  //  logic of what should happen
+  //  return updatedAccumulator;
+  // }, initialValue);
+  //
+  totalStrength = team.reduce((total, member) => total + member.strength, 0)
+  totalAgility = team.reduce((total, member) => total + member.agility, 0)
 
   return (
     <>
-    <h2>Current Funds: {money}</h2>
-
-    <h2>Current Team:</h2>
+    <h1>Reactville's Zombie Defense Team</h1>
+    <h2>The Team:</h2>
+    <h3>Current Funds: {money}</h3>
+    <h3>Total Strength: {totalStrength}</h3>
+    <h3>Total Agility: {totalAgility}</h3>
     <ul>
-      {team.map((team) => (
-        <div key={team.id}>
-          <img src={team.img}></img>
-          <li>Class: {team.name}<br/> Price: {team.price}<br/>Strength: {team.strength}<br/>Agility: {team.agility}</li>
+      {team.length === 0 ? <h3>Hire some team members below!</h3> : null}
+      {team.map((teamMember) => (
+        <div key={teamMember.id}>
+          <li><img src={teamMember.img}></img><br/>Class: {teamMember.name}<br/> Price: {teamMember.price}<br/>Strength: {teamMember.strength}<br/>Agility: {teamMember.agility}<br/><button onClick={() => handleRemoveFighter({ teamMember })}>Remove from Team</button></li>
         </div>
       ))}
     </ul>
@@ -112,9 +151,7 @@ const App = () => {
     <ul>
       {zombieFighters.map((zomfighter) => (
         <div key={zomfighter.id}>
-          <img src={zomfighter.img}></img>
-          <li>Class: {zomfighter.name}<br/> Price: {zomfighter.price}<br/>Strength: {zomfighter.strength}<br/>Agility: {zomfighter.agility}</li>
-          <button onClick={() => handleAddFighter({ zomfighter })}>Add to Team</button>
+          <li><img src={zomfighter.img}></img><br/>Class: {zomfighter.name}<br/> Price: {zomfighter.price}<br/>Strength: {zomfighter.strength}<br/>Agility: {zomfighter.agility}<br/><button onClick={() => handleAddFighter({ zomfighter })}>Add to Team</button></li>
         </div>
       ))}
     </ul>
